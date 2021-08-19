@@ -1,6 +1,5 @@
 /*
-Name: 			Architecture 2
-Written by: 	Okler Themes - (http://www.okler.net)
+Written by: 	Masum Hasan - (https://www.masumhasan.com)
 Theme Version:	8.3.0
 */
 
