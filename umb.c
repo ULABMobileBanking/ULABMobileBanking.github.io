@@ -53,6 +53,7 @@ account_no:
     fprintf(ptr, "%d %s %d %lld %f\n", use.id_no, use.name, use.secu, use.phone, use.taka);
 
     fclose(ptr);
+
     printf("\nAccount created successfully!\n");
 use_invalid:
     printf("\n\n\n\t\tEnter 1 to go to the main menu and 0 to exit:");
