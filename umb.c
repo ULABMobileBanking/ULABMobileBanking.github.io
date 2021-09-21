@@ -25,9 +25,10 @@ typedef struct Node
 node *root = NULL, *head = NULL, *use = NULL, *ser = NULL, *sign = NULL, *rsign = NULL, *transaction = NULL, *receiver = NULL;
 
 int mexit, userid, usersecu, f = 0;
+char receivername[60];
 
 int headid, headsecu;
-char headname[60];
+char headname[60], receivername[60];
 long long headphone;
 float headtaka;
 
@@ -138,7 +139,7 @@ y_n:
         FILE *ptr;
         ptr = fopen("database.dat", "a+");
 
-        fprintf(ptr, "%d %s %d %lld %f\n", head->id_no, head->name, head->secu, head->phone, head->taka);
+        fprintf(ptr, "%d %s %d 0%lld %f\n", head->id_no, head->name, head->secu, head->phone, head->taka);
 
         fclose(ptr);
         printf("\n\t\tAccount created successfully!\n");
@@ -171,6 +172,10 @@ use_invalid:
 
 void depo(int userid)
 {
+    float transactiontaka = 0;
+    printf("\n\n\t\tEnter the amount you want to deposit (BDT) : ");
+    scanf("%f", &transactiontaka);
+
     sign = root;
     sign = sign->next;
 
@@ -178,14 +183,24 @@ void depo(int userid)
     {
         if (sign->id_no == userid)
         {
-            break;
+        wrongpin:
+            printf("\n\n\t\tEnter PIN : ");
+            scanf("%d", &usersecu);
+
+            if (sign->secu == usersecu)
+            {
+                break;
+            }
+            else
+            {
+                printf("\n\n\t\tWrong PIN!! Try again.");
+                goto wrongpin;
+            }
         }
         sign = sign->next;
     }
 
     node *transaction = NULL, *temp = NULL;
-
-    float transactiontaka = 0;
 
     transaction = (node *)malloc(sizeof(node));
 
@@ -193,15 +208,11 @@ void depo(int userid)
     strcpy(transaction->name, sign->name);
     transaction->secu = sign->secu;
     transaction->phone = sign->phone;
-
-    printf("\n\n\t\tEnter the amount you want to deposit (BDT) : ");
-    scanf("%f", &transactiontaka);
-
     transaction->taka = sign->taka + transactiontaka;
 
     ser = root;
 
-    if (sign->id_no != root->next->id_no)
+    if (root->next->id_no != sign->id_no)
     {
         ser = ser->next;
     }
@@ -221,15 +232,8 @@ void depo(int userid)
     free(temp);
 
     //Addition of the new node to that place
-    if (ser != NULL)
-    {
-        transaction->next = ser->next;
-        ser->next = transaction;
-    }
-    else if (ser == NULL)
-    {
-        ser->next = transaction;
-    }
+    transaction->next = ser->next;
+    ser->next = transaction;
 
     //replacing the file
     FILE *newrec;
@@ -240,7 +244,7 @@ void depo(int userid)
 
     while (use != NULL)
     {
-        fprintf(newrec, "%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
+        fprintf(newrec, "%d %s %d 0%lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
         //printf("%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);    to see if the function works
 
         use = use->next;
@@ -262,6 +266,10 @@ void depo(int userid)
 
 void withdraw(int userid)
 {
+    float transactiontaka = 0;
+    printf("\n\n\t\tEnter the amount you want to withdraw (BDT) : ");
+    scanf("%f", &transactiontaka);
+
     sign = root;
     sign = sign->next;
 
@@ -269,14 +277,24 @@ void withdraw(int userid)
     {
         if (sign->id_no == userid)
         {
-            break;
+        wrpin:
+            printf("\n\n\t\tEnter PIN : ");
+            scanf("%d", &usersecu);
+
+            if (sign->secu == usersecu)
+            {
+                break;
+            }
+            else
+            {
+                printf("\n\n\t\tWrong PIN!! Try again.");
+                goto wrpin;
+            }
         }
         sign = sign->next;
     }
 
     node *transaction = NULL, *temp = NULL;
-
-    float transactiontaka = 0;
 
     transaction = (node *)malloc(sizeof(node));
 
@@ -284,9 +302,6 @@ void withdraw(int userid)
     strcpy(transaction->name, sign->name);
     transaction->secu = sign->secu;
     transaction->phone = sign->phone;
-
-    printf("\n\n\t\tEnter the amount to withdraw (BDT) : ");
-    scanf("%f", &transactiontaka);
 
     if (transactiontaka > sign->taka)
     {
@@ -313,14 +328,15 @@ void withdraw(int userid)
     }
 
     ser = root;
-    if (sign->id_no != root->next->id_no)
+
+    if (root->next->id_no != sign->id_no)
     {
         ser = ser->next;
     }
 
     while (ser != NULL)
     {
-        if (ser->next->id_no = userid)
+        if (ser->next->id_no == userid)
         {
             break;
         }
@@ -333,16 +349,10 @@ void withdraw(int userid)
     free(temp);
 
     //Addition of the new node to that place
-    if (ser != NULL)
-    {
-        transaction->next = ser->next;
-        ser->next = transaction;
-    }
-    else if (ser == NULL)
-    {
-        ser->next = transaction;
-    }
+    transaction->next = ser->next;
+    ser->next = transaction;
 
+    //replacing the file
     FILE *newrec;
     newrec = fopen("new.dat", "a+");
 
@@ -351,7 +361,8 @@ void withdraw(int userid)
 
     while (use != NULL)
     {
-        fprintf(newrec, "%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
+        fprintf(newrec, "%d %s %d 0%lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
+        //printf("%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);    to see if the function works
 
         use = use->next;
     }
@@ -380,8 +391,11 @@ void send(int userid)
 
 rsignid:
 
-    printf("\n\n\t\tEnter receiver ID : ");
+    printf("\n\n\t\tEnter receiver's ID : ");
     scanf("%d", &receiverid);
+invname:
+    printf("\n\n\t\tEnter receiver's name : ");
+    scanf("%s", &receivername);
 
     rsign = root;
     rsign = rsign->next;
@@ -390,7 +404,15 @@ rsignid:
     {
         if (rsign->id_no == receiverid)
         {
-            break;
+            if (strcmp(rsign->name, receivername) == 0)
+            {
+                break;
+            }
+            else
+            {
+                printf("\n\n\t\tInvalid name!! Try again.");
+                goto invname;
+            }
         }
         rsign = rsign->next;
     }
@@ -403,6 +425,9 @@ rsignid:
 
     //======================================================sender upd========================
 
+    printf("\n\n\t\tEnter the amount (BDT) : ");
+    scanf("%f", &transactiontaka);
+
     sign = root;
     sign = sign->next;
 
@@ -410,7 +435,19 @@ rsignid:
     {
         if (sign->id_no == userid)
         {
-            break;
+        wpin:
+            printf("\n\n\t\tEnter PIN : ");
+            scanf("%d", &usersecu);
+
+            if (sign->secu == usersecu)
+            {
+                break;
+            }
+            else
+            {
+                printf("\n\n\t\tWrong PIN!! Try again.");
+                goto wpin;
+            }
         }
         sign = sign->next;
     }
@@ -421,9 +458,6 @@ rsignid:
     strcpy(transaction->name, sign->name);
     transaction->secu = sign->secu;
     transaction->phone = sign->phone;
-
-    printf("\n\n\t\tEnter the amount (BDT) : ");
-    scanf("%f", &transactiontaka);
 
     if (transactiontaka > sign->taka)
     {
@@ -450,7 +484,7 @@ rsignid:
     }
 
     ser = root;
-    if (sign->id_no != root->next->id_no)
+    if (root->next->id_no != sign->id_no)
     {
         ser = ser->next;
     }
@@ -488,7 +522,7 @@ rsignid:
 
     while (use != NULL)
     {
-        fprintf(newrec, "%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
+        fprintf(newrec, "%d %s %d 0%lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
 
         use = use->next;
     }
@@ -508,7 +542,7 @@ rsignid:
 
     ser = root;
 
-    if (rsign->id_no != root->next->id_no)
+    if (root->next->id_no != rsign->id_no)
     {
         ser = ser->next;
     }
@@ -546,7 +580,7 @@ rsignid:
 
     while (use != NULL)
     {
-        fprintf(newrec, "%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
+        fprintf(newrec, "%d %s %d 0%lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);
         //printf("%d %s %d %lld %f\n", use->id_no, use->name, use->secu, use->phone, use->taka);    to see if the function works
 
         use = use->next;
@@ -577,7 +611,7 @@ void see(userid)
     {
         if (headid == userid)
         {
-            printf("\n\t\t\t==== ACCOUNT STATEMENT ====\n\n\t\tID : %d\n\t\tName: %s\n\t\tPIN: %d\n\t\tPhone number : %lld\n\t\tAccount Balance : %g (BDT)\n\n", headid, headname, headsecu, headphone, headtaka);
+            printf("\n\t\t\t==== ACCOUNT STATEMENT ====\n\n\t\tID : %d\n\t\tName: %s\n\t\tPIN: %d\n\t\tPhone number : 0%lld\n\t\tAccount Balance : %g (BDT)\n\n", headid, headname, headsecu, headphone, headtaka);
 
             break;
         }
@@ -603,11 +637,11 @@ void see(userid)
 
 void close(void)
 {
-    printf("\n\n\n\nProject By\n");
-    printf("\nNur Hasan Masum      203014011");
-    printf("\nFardeen Ameen Pranto 203014022");
-    printf("\nLamia Tabassum       203014019");
-    printf("\nAbrar Saief          2030140  \n\n\n");
+    printf("\n\n\n\n\t\t\tProject By BinaryPoets\n");
+    printf("\n\t\tLamia Tabassum       203014019");
+    printf("\n\t\tNur Hasan Masum      203014011");
+    printf("\n\t\tFardeen Ameen Pranto 203014022");
+    printf("\n\t\tAbrar Saief          203014020\n\n\n");
 
     exit(0);
 }
@@ -631,7 +665,7 @@ void signin(void)
         {
             flag = 1;
 
-            printf("\n\n\t\t\tEnter PIN : ");
+            printf("\n\t\t\tEnter PIN : ");
             scanf("%d", &usersecu);
 
             if (sign->secu == usersecu)
